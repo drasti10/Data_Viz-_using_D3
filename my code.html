@@ -1,0 +1,101 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Assignment-4</title> 
+  <script src="https://d3js.org/d3.v4.min.js"></script> 
+
+</head>
+
+<div id="my_dataviz"></div>
+<body>
+  <button type="button" id = "female" onclick="showGraph(this.id)" >Female</button>
+  <button type="button" id = "male" onclick="showGraph(this.id)" >Male</button>
+  <button type="button" id = "both"  onclick="showGraph(this.id)">Both</button>
+<script>
+ var click=0;
+function showGraph(id) {
+ click++;
+// set the dimensions and margins of the graph
+const margin = {top: 10, right: 30, bottom: 50, left: 60},
+        width = 460 - margin.left - margin.right,
+        height = 460 - margin.top - margin.bottom;
+    
+// append the svg object to the body of the page
+const svg = d3.select("#my_dataviz")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", `translate(${margin.left}, ${margin.top})`)
+// append the svg object to the body of the page
+svg.append("text")
+	   .attr("transform", "translate(100,0)")
+	   .attr("x", 10)
+	   .attr("y", 40)
+	   .attr("font-family", "sans-serif")
+	   .attr("font-size", "20px")
+	   .text("Height vs Weight  " +  id);
+			
+var xScale = d3.scaleBand().range([0, width]).padding(0.5),
+            yScale = d3.scaleLinear().range([height, 0]);
+   
+		d3.csv("https://raw.githubusercontent.com/Alzhouri/DataVis/main/D3/ggap.csv", function(error, data) {
+        if (error) {
+            throw error;
+        }
+        console.log(id === 'both' ? data : data.filter(function(d){ return d.gender == id }))
+        
+        // create scales
+        xScale.domain(data.map(function(d) { return d.weight; }));
+        yScale.domain([d3.min(data,function(d){return d.height})-15, d3.max(data, function(d) { return d.height; })]);
+		// Add X axis
+    const x = d3.scaleLinear()
+    .domain([160, 185])
+    .range([ 0, width ]);
+    svg.append("g")
+    .attr("transform", `translate(0, ${height})`)
+    .call(d3.axisBottom(x))
+            .append("text")
+            .attr("y", 40)
+            .attr("x", 180)
+	    .attr("fill", "black")
+	    .attr("font-family", "sans-serif")
+	    .attr("font-size", "18px")
+	    .text("Height");
+
+    // Add Y axis
+    const y = d3.scaleLinear()
+    .domain([55, 100])
+    .range([ height, 0]);
+    svg.append("g")
+    .call(d3.axisLeft(y))
+          .append("text")
+          .attr("transform", "rotate(-90)")
+	  .attr("y", -40)
+	  .attr("x", -140)
+	  .attr("fill", "black")
+	  .attr("font-family", "sans-serif")
+	  .attr("font-size", "18px")
+	  .text("Weight");
+
+    // Add dots
+    svg.selectAll("dot")
+        .data((id === 'both' ? data : data.filter(function(d){ return d.gender == id })))
+        .enter().append("circle")
+        .attr("cx", function (d) { return x(d.height); } )
+        .attr("cy", function (d) { return y(d.weight); } )
+        .attr("r", 3.5)
+        .style("fill", "red")
+   
+})
+if(click>1)
+{
+
+  var n=document.getElementById("my_dataviz");
+  n.removeChild(n.childNodes[0]);
+}
+}
+</script>
+</body>
+</html> 
